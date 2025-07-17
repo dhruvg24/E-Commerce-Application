@@ -2,7 +2,7 @@ class APIFunctionality {
   constructor(query, queryStr) {
     (this.query = query), (this.queryStr = queryStr);
     // say /api/products/:id?keyword=Shirt
-    // keyword=Shirt is the queryStr
+    // keyword=Shirt is the queryStr, the remaining part is query
   }
 
   search() {

@@ -31,6 +31,7 @@ export const getAllProducts = handleAsyncErrors(async (req, res, next) => {
   // console.log(totalPages);
 
   const page = Number(req.query.page) || 1;
+  // page is the current page, as asked by user[frontend]
 
   if(page>totalPages && productCount>0){
     return next(new HandleError('This page doesnot exist!', 404))
