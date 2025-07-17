@@ -17,3 +17,16 @@ export const verifyUserAuth = handleAsyncErrors(async (req, res, next)=>{
     // now user can access
     next();
 })
+
+
+export const roleBasedAccess = (...roles)=>{
+    // role can be user/admin/superadmin all grouped as an array    
+    return (req,res,next)=>{
+        // say req is for 'user' the below condition checks if the for every role!=user -> return error.
+        if(!roles.includes(req.user.role)){
+            return next(new HandleError(`Role - ${req.user.role} is not allowed to access this resource.`, 403));
+        }
+        next();
+    }
+}
+

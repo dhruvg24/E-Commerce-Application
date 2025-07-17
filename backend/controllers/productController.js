@@ -5,6 +5,9 @@ import APIFunctionality from "../utils/apiFunctionality.js";
 // Creating products
 export const createProducts = handleAsyncErrors(async (req, res, next) => {
   // console.log(req.body);
+  req.body.user=req.user.id;
+  // see product schema -> it has a user object refering to user 
+  // to get the type of user like admin/user
   const product = await Product.create(req.body);
   res.status(201).json({ message: "Product created successfully", product });
 });
