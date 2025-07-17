@@ -29,7 +29,7 @@ class APIFunctionality {
     const removeFields = ["keyword", "page", "limit"];
     // limit - for pagination.
     removeFields.forEach((key) => delete queryCopy[key]);
-    this.query = this.query(queryCopy);
+    this.query = this.query.find(queryCopy);
     return this;
   }
 

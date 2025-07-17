@@ -1,0 +1,19 @@
+import HandleError from "../utils/handleError.js";
+import handleAsyncErrors from "./handleAsyncErrors.js";
+import User from '../models/userModel.js'
+import jwt from 'jsonwebtoken'
+
+export const verifyUserAuth = handleAsyncErrors(async (req, res, next)=>{
+    const {token} = req.cookies;
+    // console.log(token);
+
+    if(!token){
+        return next(new HandleError('Authentication is missing, Pls login! ', 401));
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // console.log(decoded);
+    req.user = await User.findById(decoded.id);
+
+    // now user can access
+    next();
+})

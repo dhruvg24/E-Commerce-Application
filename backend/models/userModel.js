@@ -58,4 +58,9 @@ userSchema.methods.getJWTToken = function(){
     })
 }
 
+userSchema.methods.verifyPassword = async function(pswd){
+    return await bcryptjs.compare(pswd, this.password);
+    // this.password - password stored in db.
+}
+
 export default mongoose.model('User',userSchema);
