@@ -2,6 +2,9 @@ import handleAsyncErrors from "../middlewares/handleAsyncErrors.js";
 import User from "../models/userModel.js";
 import HandleError from "../utils/handleError.js";
 import { sendToken } from "../utils/jwtToken.js";
+import { sendEmail } from "../utils/sendEmail.js";
+
+// register user
 export const registerUser = handleAsyncErrors(async (req, res, next) => {
   const { name, email, password } = req.body;
 
@@ -42,7 +45,7 @@ export const loginUser = handleAsyncErrors(async(req,res,next)=>{
 
 })
 
-
+// logout user
 export const logoutUser = handleAsyncErrors(async(req,res,next)=>{
 
     // expire token immediately
@@ -56,4 +59,52 @@ export const logoutUser = handleAsyncErrors(async(req,res,next)=>{
         success:true,
         message: 'Logged out successfully.'
     })
+})
+
+
+// reset password
+export const requestPasswordReset=handleAsyncErrors(async(req,res,next)=>{
+    const {email} = req.body;
+    const user = await User.findOne({email});
+    if(!user){
+        return next(new HandleError('User does not exists',400));
+    }
+    let resetToken;
+    try{
+        resetToken = user.generatePasswordResetToken();
+        // console.log(resetToken);
+        await user.save(
+            {validateBeforeSave: false}
+            // need not validate the fields again before saving the data.[as mentioned in user model]
+        )
+    }catch(err){
+        // console.error(err);
+        return next(new HandleError('Could not save reset token pls try again later',500));
+    }
+
+    const resetPasswordURL = `http://localhost/api/reset/${resetToken}`;
+    // console.log(resetPasswordURL);
+
+    const mailContent = `Use the following link to reset your password: ${resetPasswordURL}. \n\n This link will get expired in 30 minutes. \n\n If you didn't requested a password reset, kindly ignore this message.`
+
+    try{
+        // will send the mail
+        await sendEmail({
+            // as entered by user
+            email: user.email,
+            subject: 'Password reset request',
+            mailContent
+        })
+        res.status(200).json({
+            success:true,
+            message:`Email is sent to ${user.email} successfully.`
+        })
+    }catch(err){
+        user.resetPasswordToken=undefined;
+        user.resetPasswordExpire=undefined;
+        await user.save({validateBeforeSave: false})
+        return next(new HandleError('Email could not be sent, pls try again later', 500))
+    }
+
+
 })
