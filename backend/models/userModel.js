@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import validator from 'validator';
+import bcryptjs from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -39,5 +41,21 @@ const userSchema = new mongoose.Schema({
     resetPasswordToken: String,
     resetPasswordExpire:Date
 }, {timestamps: true})
+
+userSchema.pre('save', async function(){
+    this.password = await bcryptjs.hash(this.password, 10);
+    // salt=10
+    // if user does not updates the password then this function will hash the hashed password , therefore need to make a condition
+    if(!this.isModified('password')){
+        return next();
+    }
+})
+// pre('save') - before saving the schema
+
+userSchema.methods.getJWTToken = function(){
+    return jwt.sign({id: this._id}, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRE
+    })
+}
 
 export default mongoose.model('User',userSchema);
