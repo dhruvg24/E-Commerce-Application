@@ -150,3 +150,63 @@ export const resetPassword = handleAsyncErrors(async(req,res,next)=>{
     
 
 })
+
+
+// get user details
+export const getUserDetails = handleAsyncErrors(async(req,res,next)=>{
+
+    // console.log(req.user.id);
+    const user = await User.findById(req.user.id);
+
+    // no need to check authorized user as already done by middleware
+    res.status(200).json({
+        success:true,
+        user
+    })
+
+});
+
+
+// Update password
+export const updatePassword = handleAsyncErrors(async(req,res,next)=>{
+    const {oldPassword,newPassword, confirmPassword} = req.body;
+    const user = await User.findById(req.user.id).select('+password');
+    // if old password = database stored password then only proceed
+    const isPasswordMatch = await user.verifyPassword(oldPassword);
+    // verifyPassword function created in usermodel.js
+
+    if(!isPasswordMatch){
+        return next(new HandleError('Old password is incorrect',400));
+    }
+
+    if(newPassword!==confirmPassword){
+        return next(new HandleError('Password doesnot match',400));
+    }
+
+    user.password = newPassword;
+
+    await user.save();
+
+    sendToken(user,200,res);
+})
+
+
+// update user profile
+export const updateProfile = handleAsyncErrors(async(req,res,next)=>{
+    const {name, email} = req.body;
+    const updateUserDetails = {
+        name,
+        email
+    }
+
+    const user = await User.findByIdAndUpdate(req.user.id,updateUserDetails, {
+        new:true,
+        runValidators:true
+    });
+    res.status(200).json({
+        success:true,
+        message: 'Profile updated successfully.',
+        user
+    })
+    
+})
