@@ -14,6 +14,10 @@ const orderSchema = new mongoose.Schema({
             type: String,
             required: true
         },
+        country:{
+            type:String,
+            required:true
+        },
         pinCode: {
             type:Number,
             required:true
@@ -49,6 +53,11 @@ const orderSchema = new mongoose.Schema({
             }
         }
     ],
+    orderStatus:{
+        type:String,
+        required:true,
+        default:'Processing'
+    },
     user:{
         type:mongoose.Schema.ObjectId,
         ref:'User',
