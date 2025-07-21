@@ -31,16 +31,16 @@ const Ratings = ({ value, onRatingChange, disabled }) => {
   // generating stars based on selected rating
   const generateStars = () => {
     const stars = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 1; i <= 5; i++) {
       const isFilled = i <= (hoveredRating || selectedRating);
       // till hovered rating stars are marked with filled, else with empty class
       stars.push(
         <span
           key={i}
           className={`star ${isFilled ? "filled" : "empty"}`}
-          onMouseEnter={() => handleMouseEnter}
-          onMouseLeave={() => handleMouseLeave}
-          onClick={() => handleClick}
+          onMouseEnter={() => handleMouseEnter(i)}
+          onMouseLeave={handleMouseLeave}
+          onClick={() => handleClick(i)}
           style={{ pointerEvents: disabled ? "none" : "auto" }}
         >
           ★

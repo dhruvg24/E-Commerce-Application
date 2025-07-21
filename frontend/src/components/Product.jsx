@@ -18,7 +18,7 @@ const Product = ({product}) => {
           Price {""}{product.price}/-
         </p>
         <div className="rating_container">
-            <Ratings value={product.ratings} onRatingChange = {handleRatingChange} disabled={true}/>
+            <Ratings value={product.ratings} onRatingChange = {handleRatingChange} disabled={false}/>
         </div>
         <span className="productCardSpan">
           {product.numOfReviews} {product.numOfReviews===1?"Review":"Reviews"} 

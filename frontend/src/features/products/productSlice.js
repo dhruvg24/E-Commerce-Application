@@ -20,13 +20,25 @@ export const getProduct = createAsyncThunk('product/getProduct', async(_,{reject
         // from backend error
     }
 })
+
+// product details
+export const getProductDetails = createAsyncThunk('product/getProductDetails', async(id,{rejectWithValue})=>{
+    try{
+        const link=`/api/product/${id}`
+        const {data} = await axios.get(link);
+        return data;
+    }catch(error){
+        return rejectWithValue(error.response?.data || 'Some error occurred');
+    }
+})
 const productSlice = createSlice({
     name:'product',
     initialState: {
         products: [],
         productCount: 0,
         loading:false,
-        error:null
+        error:null,
+        product:null
     },
     reducers:{
         removeErrors:(state)=>{
@@ -52,6 +64,22 @@ const productSlice = createSlice({
             state.loading=false;
             state.error = action.payload || 'Something went wrong';
         })
+
+        builder.addCase(getProductDetails.pending, (state)=>{
+            state.loading=true;
+            state.error=null
+        })
+        .addCase(getProductDetails.fulfilled,(state,action)=>{
+            console.log('Product details', action.payload)
+            state.loading = false;
+            state.error =null;
+            state.product = action.payload.product; //from backend
+        })
+        .addCase(getProductDetails.rejected, (state,action)=>{
+            state.loading=false;
+            state.error = action.payload || 'Something went wrong';
+        })
+
     }
 
 })
