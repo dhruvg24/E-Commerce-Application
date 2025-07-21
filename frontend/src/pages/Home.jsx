@@ -6,8 +6,9 @@ import ImageSlider from '../components/ImageSlider'
 import Product from '../components/Product'
 import PageTitle from '../components/PageTitle'
 import { useDispatch, useSelector } from 'react-redux'
-import { getProduct } from '../features/products/productSlice.js'
-
+import { getProduct, removeErrors } from '../features/products/productSlice.js'
+import LoadingContent from '../components/LoadingContent.jsx'
+import { toast } from 'react-toastify'
 // const products= [
 //         {
 //             "_id": "68779004414a288bc475f2dd",
@@ -106,9 +107,17 @@ const Home = () => {
     useEffect(()=>{
         dispatch(getProduct())
     },[dispatch])
+
+    useEffect(()=>{
+        if(error){
+            toast.error(error.message, {position:'top-center',autoClose:3000});
+            dispatch(removeErrors())
+        }
+    },[dispatch,error])
   return (
-    // <div>Home</div>
     <>
+    // <div>Home</div>
+    {loading?(<LoadingContent />):(<>
     <PageTitle title="Home"/>
     <Navbar />
     <ImageSlider />
@@ -124,6 +133,7 @@ const Home = () => {
         </div>
         <Footer />
     </div>
+    </>)}
     </>
   )
 }
