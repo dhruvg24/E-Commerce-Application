@@ -8,10 +8,12 @@ import Product from "../components/Product";
 import { getProduct, removeErrors } from "../features/products/productSlice";
 import { toast } from "react-toastify";
 import LoadingContent from "../components/LoadingContent";
-import { useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import ProductNotFound from "../components/ProductNotFound";
+import { useState } from "react";
+import Pagination from "../components/Pagination";
 const Products = () => {
-  const { loading, error, products } = useSelector((state) => state.product);
+  const { loading, error, products,resultsPerPage,productCount } = useSelector((state) => state.product);
 
   const dispatch = useDispatch();
   const location = useLocation();
@@ -19,9 +21,12 @@ const Products = () => {
   // console.log(searchParams);
   const keyword = searchParams.get("keyword");
   // console.log(keyword);
+  const pageFromURL = parseInt(searchParams.get('page'), 10) || 1
+  const [currentPage, setCurrentPage] = useState(pageFromURL)
+  const navigate = useNavigate()
   useEffect(() => {
-    dispatch(getProduct({ keyword }));
-  }, [dispatch, keyword]);
+    dispatch(getProduct({ keyword, page:currentPage }));
+  }, [dispatch, keyword, currentPage]);
 
   useEffect(() => {
     if (error) {
@@ -30,6 +35,19 @@ const Products = () => {
     }
   }, [dispatch, error]);
 
+
+  const handlePageChange = (page)=>{
+    if(page!==currentPage){
+      setCurrentPage(page);
+      const newSearchParams= new URLSearchParams(location.search);
+      if(page===1){
+        newSearchParams.delete('page')
+      }else{
+        newSearchParams.set('page', page)
+      }
+      Navigate(`?${newSearchParams.toString()}`)
+    }
+  }
   return (
     <>
       {loading ? (
@@ -53,6 +71,7 @@ const Products = () => {
               ) : (
                 <ProductNotFound keyword={keyword} />
               )}
+              <Pagination currentPage={currentPage} onPageChange={handlePageChange} />
             </div>
           </div>
           <Footer />
