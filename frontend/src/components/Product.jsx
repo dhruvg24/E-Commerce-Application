@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../componentStyles/Product.css";
+import "../pageStyles/Product.css";
 import { Link } from "react-router-dom";
 import Ratings from "./Ratings";
 const Product = ({product}) => {
@@ -14,7 +14,7 @@ const Product = ({product}) => {
       <img src={product.image[0].url} alt={product.name} className="product-image-card"/>
       <div className="product-details">
         <h3 className="product-title">{product.name}</h3>
-        <p className="product-price">
+        <p className="home-price">
           Price {""}{product.price}/-
         </p>
         <div className="rating_container">

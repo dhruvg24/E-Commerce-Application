@@ -3,11 +3,12 @@ import axios from 'axios'
 
 
 
-export const getProduct = createAsyncThunk('product/getProduct', async(_,{rejectWithValue})=>{
+export const getProduct = createAsyncThunk('product/getProduct', async({keyword},{rejectWithValue})=>{
     // to handle errors
     try{
+        const link = keyword?`/api/products?keyword=${encodeURIComponent(keyword)}`:'/api/products'
         // Access API link[backend]
-        const link = '/api/products';
+        // const link = '/api/products';
         // get request
         const {data} = await axios.get(link);
         console.log('Response:',data);
@@ -63,6 +64,7 @@ const productSlice = createSlice({
         .addCase(getProduct.rejected, (state,action)=>{
             state.loading=false;
             state.error = action.payload || 'Something went wrong';
+            state.products=[];
         })
 
         builder.addCase(getProductDetails.pending, (state)=>{
