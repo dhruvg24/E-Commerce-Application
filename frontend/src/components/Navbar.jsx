@@ -7,6 +7,7 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import CloseIcon from "@mui/icons-material/Close";
 import MenuIcon from "@mui/icons-material/Menu";
 import "../pageStyles/Search.css";
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -15,6 +16,7 @@ const Navbar = () => {
   const toggleSearch = () => setIsSearchOpen(!isSearchOpen);
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const navigate = useNavigate();
+
   const handleSearchSubmit = (e)=>{
     e.preventDefault();
     if(searchQuery.trim()){
@@ -24,7 +26,7 @@ const Navbar = () => {
     }
     setSearchQuery("");
   }
-  const isUserAuthenticated = false;
+  const {isAuthenticated} = useSelector(state=>state.user);
   return (
     <div className="navbar">
       <div className="navbar-container">
@@ -74,7 +76,7 @@ const Navbar = () => {
             <span className="cart-badge">6</span>
           </div>
 
-          {!isUserAuthenticated && (
+          {!isAuthenticated && (
             <Link to="/register" className="register-link">
               <PersonAddIcon className="icon" />
             </Link>

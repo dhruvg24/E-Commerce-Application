@@ -12,7 +12,7 @@ export const register = createAsyncThunk(
         },
       };
       const { data } = await axios.post("/api/register", userData, config);
-      console.log('register data: ', data);
+      console.log("register data: ", data);
       return data;
     } catch (err) {
       return rejectWithValue(
@@ -24,24 +24,57 @@ export const register = createAsyncThunk(
 
 export const login = createAsyncThunk(
   "user/login",
-  async ({email, password}, { rejectWithValue }) => {
+  async ({ email, password }, { rejectWithValue }) => {
     try {
       const config = {
         headers: {
           "Content-Type": "application/json",
         },
       };
-      const { data } = await axios.post("/api/login", {email, password}, config);
-      console.log('login data: ', data);
+      const { data } = await axios.post(
+        "/api/login",
+        { email, password },
+        config
+      );
+      console.log("login data: ", data);
       return data;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data || "Registration failed! Pls try again later."
+        err.response?.data || "Login failed! Pls try again later."
       );
     }
   }
 );
 
+export const loadUser = createAsyncThunk(
+  "/user/loadUser",
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.get("/api/profile");
+      return data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data ||
+          "Failed to load user profile! Pls try again later."
+      );
+    }
+  }
+);
+
+export const logout = createAsyncThunk(
+  "/user/logout",
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.post("/api/logout", {
+        withCredentials: true,
+      });
+      // withcredentials ensure deletion of cookie.
+      return data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || "Logout failed");
+    }
+  }
+);
 const userSlice = createSlice({
   name: "user",
   initialState: {
@@ -81,8 +114,8 @@ const userSlice = createSlice({
         state.isAuthenticated = false;
       });
 
-      // login cases
-      builder
+    // login cases
+    builder
       .addCase(login.pending, (state) => {
         (state.loading = true), (state.error = null);
       })
@@ -92,15 +125,48 @@ const userSlice = createSlice({
           (state.success = action.payload.success),
           (state.user = action.payload?.user || null),
           (state.isAuthenticated = Boolean(action.payload?.user));
-          // (console.log(state.user));
+        // (console.log(state.user));
       })
       .addCase(login.rejected, (state, action) => {
         (state.loading = false),
           (state.error =
-            action.payload?.message ||
-            "Login failed, Please try again later.");
+            action.payload?.message || "Login failed, Please try again later.");
         state.user = null;
         state.isAuthenticated = false;
+      });
+
+    // loading user
+    builder
+      .addCase(loadUser.pending, (state) => {
+        (state.loading = true), (state.error = null);
+      })
+      .addCase(loadUser.fulfilled, (state, action) => {
+        (state.loading = false), (state.error = null);
+        (state.user = action.payload?.user || null),
+          (state.isAuthenticated = Boolean(action.payload?.user));
+        // (console.log(state.user));
+      })
+      .addCase(loadUser.rejected, (state, action) => {
+        (state.loading = false),
+          (state.error =
+            action.payload?.message || "Failed to load user profile!");
+        state.user = null;
+        state.isAuthenticated = false;
+      });
+
+    // logout user
+    builder
+      .addCase(logout.pending, (state) => {
+        (state.loading = true), (state.error = null);
+      })
+      .addCase(logout.fulfilled, (state, action) => {
+        (state.loading = false), (state.error = null);
+        (state.user = null), (state.isAuthenticated = false);
+        // (console.log(state.user));
+      })
+      .addCase(logout.rejected, (state, action) => {
+        (state.loading = false),
+          (state.error = action.payload?.message || "Failed to logout user!");
       });
   },
 });
