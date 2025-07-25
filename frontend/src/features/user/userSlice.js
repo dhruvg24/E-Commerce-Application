@@ -12,7 +12,27 @@ export const register = createAsyncThunk(
         },
       };
       const { data } = await axios.post("/api/register", userData, config);
-      console.log(data);
+      console.log('register data: ', data);
+      return data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Registration failed! Pls try again later."
+      );
+    }
+  }
+);
+
+export const login = createAsyncThunk(
+  "user/login",
+  async ({email, password}, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const { data } = await axios.post("/api/login", {email, password}, config);
+      console.log('login data: ', data);
       return data;
     } catch (err) {
       return rejectWithValue(
@@ -57,6 +77,28 @@ const userSlice = createSlice({
           (state.error =
             action.payload?.message ||
             "Registration failed, Please try again later.");
+        state.user = null;
+        state.isAuthenticated = false;
+      });
+
+      // login cases
+      builder
+      .addCase(login.pending, (state) => {
+        (state.loading = true), (state.error = null);
+      })
+      .addCase(login.fulfilled, (state, action) => {
+        (state.loading = false),
+          (state.error = null),
+          (state.success = action.payload.success),
+          (state.user = action.payload?.user || null),
+          (state.isAuthenticated = Boolean(action.payload?.user));
+          // (console.log(state.user));
+      })
+      .addCase(login.rejected, (state, action) => {
+        (state.loading = false),
+          (state.error =
+            action.payload?.message ||
+            "Login failed, Please try again later.");
         state.user = null;
         state.isAuthenticated = false;
       });
