@@ -20,13 +20,20 @@ const Products = () => {
   const searchParams = new URLSearchParams(location.search);
   // console.log(searchParams);
   const keyword = searchParams.get("keyword");
+  const category = searchParams.get('category');
   // console.log(keyword);
   const pageFromURL = parseInt(searchParams.get('page'), 10) || 1
   const [currentPage, setCurrentPage] = useState(pageFromURL)
+
+  // useEffect(()=>{
+  //   setCurrentPage(pageFromURL)
+  // },[pageFromURL])
   const navigate = useNavigate()
+
+  const categories = ['Laptops', 'Mobiles', 'Tv', 'Fruits', 'Glasses', 'Shirts', 'Trousers', 'Coats', 'Pants'];
   useEffect(() => {
-    dispatch(getProduct({ keyword, page:currentPage }));
-  }, [dispatch, keyword, currentPage]);
+    dispatch(getProduct({ keyword, page:currentPage, category }));
+  }, [dispatch, keyword, currentPage,category]);
 
   useEffect(() => {
     if (error) {
@@ -45,8 +52,15 @@ const Products = () => {
       }else{
         newSearchParams.set('page', page)
       }
-      Navigate(`?${newSearchParams.toString()}`)
+      navigate(`?${newSearchParams.toString()}`)
     }
+  }
+  const handleCategoryClick=(category)=>{
+    const newSearchParams = new URLSearchParams(location.search);
+    newSearchParams.set('category', category);
+    newSearchParams.delete('page'); //current page has to be removed from search params
+    navigate(`?${newSearchParams.toString()}`)
+
   }
   return (
     <>
@@ -60,6 +74,17 @@ const Products = () => {
             <div className="filter-section">
               <h3 className="filter-heading">CATEGORIES</h3>
               {/* Render categories */}
+              <ul>
+                {
+                  categories.map((category)=>{
+                    return (
+                      <li key={category} onClick={()=>handleCategoryClick(category)}>
+                        {category}
+                      </li>
+                    )
+                  })
+                }
+              </ul>
             </div>
             <div className="products-section">
               {products.length > 0 ? (

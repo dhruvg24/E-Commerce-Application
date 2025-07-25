@@ -35,33 +35,46 @@ const Pagination = ({
   };
   return (
     <div className="pagination">
-        {/* prev and first button */}
+      {/* prev and first button */}
       {currentPage > 1 && (
         <>
           <button className="pagination-btn" onClick={() => onPageChange(1)}>
             {firstPageText}
           </button>
-          <button className="pagination-btn" onClick={() => onPageChange(currentPage-1)}>
+          <button
+            className="pagination-btn"
+            onClick={() => onPageChange(currentPage - 1)}
+          >
             {prevPageText}
           </button>
         </>
       )}
 
       {/* Display numbers */}
-      {
-        getPageNumbers().map((number)=>(
-            <button className={`pagination-btn ${currentPage===number?activeClass:''}`} key={number} onClick={()=>onPageChange(number)}>
-                {number}
-            </button>
-        ))
-      }
-        {/* Last and next buttons */}
+      {getPageNumbers().map((number) => (
+        <button
+          className={`pagination-btn ${
+            currentPage === number ? activeClass : ""
+          }`}
+          key={number}
+          onClick={() => onPageChange(number)}
+        >
+          {number}
+        </button>
+      ))}
+      {/* Last and next buttons */}
       {currentPage < totalPages && (
         <>
-          <button className="pagination-btn" onClick={() => onPageChange(currentPage + 1)}>
+          <button
+            className="pagination-btn"
+            onClick={() => onPageChange(currentPage + 1)}
+          >
             {nextPageText}
           </button>
-          <button className="pagination-btn" onClick={() => onPageChange(totalPages)}>
+          <button
+            className="pagination-btn"
+            onClick={() => onPageChange(totalPages)}
+          >
             {lastPageText}
           </button>
         </>

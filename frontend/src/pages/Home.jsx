@@ -116,7 +116,7 @@ const Home = () => {
     },[dispatch,error])
   return (
     <>
-    // <div>Home</div>
+
     {loading?(<LoadingContent />):(<>
     <PageTitle title="Home"/>
     <Navbar />

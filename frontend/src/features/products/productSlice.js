@@ -3,10 +3,18 @@ import axios from 'axios'
 
 
 
-export const getProduct = createAsyncThunk('product/getProduct', async({keyword,page=1},{rejectWithValue})=>{
+export const getProduct = createAsyncThunk('product/getProduct', async({keyword,page=1,category},{rejectWithValue})=>{
     // to handle errors
     try{
-        const link = keyword?`/api/products?keyword=${encodeURIComponent(keyword)}&page=${page}`:`/api/products?page=${page}`
+
+        let link = '/api/products?page='+page;
+        if(category){
+            link+=`&category=${category}`;
+        }
+        if(keyword){
+            link+=`&keyword=${keyword}`;
+        }
+        // const link = keyword?`/api/products?keyword=${encodeURIComponent(keyword)}&page=${page}`:`/api/products?page=${page}`
         // Access API link[backend]
         // const link = '/api/products';
         // get request
