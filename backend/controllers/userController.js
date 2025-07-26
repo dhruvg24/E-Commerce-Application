@@ -88,7 +88,7 @@ export const requestPasswordReset=handleAsyncErrors(async(req,res,next)=>{
         return next(new HandleError('Could not save reset token pls try again later',500));
     }
 
-    const resetPasswordURL = `http://localhost/api/reset/${resetToken}`;
+    const resetPasswordURL = `${req.protocol}://${req.get('host')}/reset/${resetToken}`;
     // console.log(resetPasswordURL);
 
     const mailContent = `Use the following link to reset your password: ${resetPasswordURL}. \n\n This link will get expired in 30 minutes. \n\n If you didn't requested a password reset, kindly ignore this message.`
