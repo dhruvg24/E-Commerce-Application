@@ -24,7 +24,7 @@ router.route("/reset/:token").post(resetPassword);
 // token comes from resetPasswordURL in userController.js (while sending mail to requesting user)
 router.route("/profile").get(verifyUserAuth, getUserDetails);
 router.route("/password/update").post(verifyUserAuth, updatePassword);
-router.route("/profile/update").post(verifyUserAuth, updateProfile);
+router.route("/profile/update").put(verifyUserAuth, updateProfile);
 router
   .route("/admin/users")
   .get(verifyUserAuth, roleBasedAccess("admin"), getUsersList);

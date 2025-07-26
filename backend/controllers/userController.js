@@ -198,12 +198,27 @@ export const updatePassword = handleAsyncErrors(async(req,res,next)=>{
 
 // update user profile
 export const updateProfile = handleAsyncErrors(async(req,res,next)=>{
-    const {name, email} = req.body;
+    const {name, email, avatar} = req.body;
     const updateUserDetails = {
         name,
         email
     }
+    if(avatar!==''){
+        const user = await User.findById(req.user.id);
+        const imageID = user.avatar.public_id;
+        await cloudinary.uploader.destroy(imageID);
+        // remove the older image from cloudinary while uploading a new one.
 
+        const myCloud = await cloudinary.uploader.upload(avatar, {
+            folder: 'avatars',
+            width:150, 
+            crop:'scale'
+        })
+        updateUserDetails.avatar = {
+            public_id : myCloud.public_id,
+            url: myCloud.secure_url
+        }
+    }
     const user = await User.findByIdAndUpdate(req.user.id,updateUserDetails, {
         new:true,
         runValidators:true

@@ -75,6 +75,28 @@ export const logout = createAsyncThunk(
     }
   }
 );
+
+export const updateProfile = createAsyncThunk(
+  "/user/updateProfile",
+  async (userData, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+      const { data } = await axios.put("/api/profile/update", userData, config);
+      return data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || {
+          message: "Profile Update Failed, Pls try again later.",
+        }
+      );
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: "user",
   initialState: {
@@ -82,7 +104,8 @@ const userSlice = createSlice({
     loading: false,
     error: null,
     success: false,
-    isAuthenticated: false, //only if user logins
+    isAuthenticated: false, //only if user logins,
+    message: null,
   },
   reducers: {
     removeErrors: (state) => {
@@ -167,6 +190,27 @@ const userSlice = createSlice({
       .addCase(logout.rejected, (state, action) => {
         (state.loading = false),
           (state.error = action.payload?.message || "Failed to logout user!");
+      });
+
+    // update user profile
+    builder
+      .addCase(updateProfile.pending, (state) => {
+        (state.loading = true), (state.error = null);
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        (state.loading = false), (state.error = null);
+        (state.user = action.payload?.user || null),
+          (state.isAuthenticated = Boolean(action.payload?.user)),
+          (state.success = action.payload?.success),
+          (state.message = action.payload?.message);
+        // set user through payload coz from backed userController.js we are passing user
+        // (console.log(state.user));
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        (state.loading = false),
+          (state.error =
+            action.payload?.message ||
+            "Profile update failed. Please try again later.");
       });
   },
 });
