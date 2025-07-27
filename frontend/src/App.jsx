@@ -22,12 +22,9 @@ function App() {
   const { isAuthenticated, user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   useEffect(() => {
-    // if(isAuthenticated){
-    //   dispatch(loadUser());
-    // }
-    dispatch(loadUser());
-
-    // load user on mount.
+    if(isAuthenticated){
+      dispatch(loadUser());
+    }
   }, [dispatch]);
 
   // console.log(isAuthenticated, user);

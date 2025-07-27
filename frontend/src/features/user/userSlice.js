@@ -127,21 +127,19 @@ export const forgotPassword = createAsyncThunk(
           "Content-Type": "application/json",
         },
       };
-      const { data } = await axios.post(
-        "/api/password/forgot",
-        email,
-        config
-      );
+      const { data } = await axios.post("/api/password/forgot", email, config);
       return data;
     } catch (err) {
-      return rejectWithValue(err.response?.data || {message:"Forgot Password Failed"});
+      return rejectWithValue(
+        err.response?.data || { message: "Forgot Password Failed" }
+      );
     }
   }
 );
 
 export const resetPassword = createAsyncThunk(
   "/user/resetPassword",
-  async ({token, userData}, { rejectWithValue }) => {
+  async ({ token, userData }, { rejectWithValue }) => {
     try {
       const config = {
         headers: {
@@ -155,18 +153,22 @@ export const resetPassword = createAsyncThunk(
       );
       return data;
     } catch (err) {
-      return rejectWithValue(err.response?.data || {message:"Password Reset Failed"});
+      return rejectWithValue(
+        err.response?.data || { message: "Password Reset Failed" }
+      );
     }
   }
 );
 const userSlice = createSlice({
   name: "user",
   initialState: {
-    user: null, //initially no user
+    user: localStorage.getItem("user")
+      ? JSON.parse(localStorage.getItem("user"))
+      : null, //get it from localStorage
     loading: false,
     error: null,
     success: false,
-    isAuthenticated: false, //only if user logins,
+    isAuthenticated: localStorage.getItem("isAuthenticated") === "true", //will get from localstorage
     message: null,
   },
   reducers: {
@@ -189,6 +191,13 @@ const userSlice = createSlice({
           (state.success = action.payload.success),
           (state.user = action.payload?.user || null),
           (state.isAuthenticated = Boolean(action.payload?.user));
+
+        // store the user in localstorage to prevent logging out of user on page reload/refresh
+        localStorage.setItem("user", JSON.stringify(state.user));
+        localStorage.setItem(
+          "isAuthenticated",
+          JSON.stringify(state.isAuthenticated)
+        );
       })
       .addCase(register.rejected, (state, action) => {
         (state.loading = false),
@@ -211,6 +220,13 @@ const userSlice = createSlice({
           (state.user = action.payload?.user || null),
           (state.isAuthenticated = Boolean(action.payload?.user));
         // (console.log(state.user));
+
+        // store the user in localstorage to prevent logging out of user on page reload/refresh
+        localStorage.setItem("user", JSON.stringify(state.user));
+        localStorage.setItem(
+          "isAuthenticated",
+          JSON.stringify(state.isAuthenticated)
+        );
       })
       .addCase(login.rejected, (state, action) => {
         (state.loading = false),
@@ -230,6 +246,11 @@ const userSlice = createSlice({
         (state.user = action.payload?.user || null),
           (state.isAuthenticated = Boolean(action.payload?.user));
         // (console.log(state.user));
+        localStorage.setItem("user", JSON.stringify(state.user));
+        localStorage.setItem(
+          "isAuthenticated",
+          JSON.stringify(state.isAuthenticated)
+        );
       })
       .addCase(loadUser.rejected, (state, action) => {
         (state.loading = false),
@@ -237,6 +258,14 @@ const userSlice = createSlice({
             action.payload?.message || "Failed to load user profile!");
         state.user = null;
         state.isAuthenticated = false;
+
+        if (action.payload?.statusCode === 401) {
+          // in case user is not loaded will reset these property(removing from )
+          state.user = null;
+          state.isAuthenticated = false;
+          localStorage.removeItem("user");
+          localStorage.removeItem("isAuthenticated");
+        }
       });
 
     // logout user
@@ -247,6 +276,8 @@ const userSlice = createSlice({
       .addCase(logout.fulfilled, (state, action) => {
         (state.loading = false), (state.error = null);
         (state.user = null), (state.isAuthenticated = false);
+        localStorage.removeItem("user");
+        localStorage.removeItem("isAuthenticated");
         // (console.log(state.user));
       })
       .addCase(logout.rejected, (state, action) => {
@@ -293,9 +324,8 @@ const userSlice = createSlice({
           (state.error = action.payload?.message || "Password update failed");
       });
 
-
-      // forgot password
-      builder
+    // forgot password
+    builder
       .addCase(forgotPassword.pending, (state) => {
         (state.loading = true), (state.error = null);
       })
@@ -304,16 +334,14 @@ const userSlice = createSlice({
           (state.error = null),
           (state.success = action.payload?.success),
           (state.message = action.payload?.message);
-
-       
       })
       .addCase(forgotPassword.rejected, (state, action) => {
         (state.loading = false),
           (state.error = action.payload?.message || "Forgot Password Failed");
       });
 
-      // reset password
-      builder
+    // reset password
+    builder
       .addCase(resetPassword.pending, (state) => {
         (state.loading = true), (state.error = null);
       })
@@ -323,8 +351,6 @@ const userSlice = createSlice({
           (state.success = action.payload?.success),
           (state.user = null),
           (state.isAuthenticated = false);
-
-       
       })
       .addCase(resetPassword.rejected, (state, action) => {
         (state.loading = false),
