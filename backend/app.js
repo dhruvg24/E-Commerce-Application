@@ -3,10 +3,11 @@ import morgan from 'morgan';
 import product from './routes/productRoutes.js'
 import user from './routes/userRoutes.js'
 import order from './routes/orderRoutes.js'
+import payment from './routes/paymentRoutes.js'
 import errorHandleMiddleware from './middlewares/error.js'
 import cookieParser from 'cookie-parser';
 import fileUpload from 'express-fileupload';
-
+import dotenv from 'dotenv'
 const app = express();
 
 
@@ -21,9 +22,12 @@ app.use(fileUpload());
 app.use('/api',product);
 app.use('/api',user);
 app.use('/api',order);
+app.use('/api',payment);
 
 app.use(errorHandleMiddleware);
-// using after routes will lead to correct error handling.
+
+dotenv.config({path:'backend/config/config.env'})
+
 
 
 export default app;
