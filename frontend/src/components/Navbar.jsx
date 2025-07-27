@@ -17,16 +17,17 @@ const Navbar = () => {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const navigate = useNavigate();
 
-  const handleSearchSubmit = (e)=>{
+  const handleSearchSubmit = (e) => {
     e.preventDefault();
-    if(searchQuery.trim()){
-      navigate(`/products?keyword=${encodeURIComponent(searchQuery.trim())}`)
-    }else{
-      navigate(`/products`)
+    if (searchQuery.trim()) {
+      navigate(`/products?keyword=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      navigate(`/products`);
     }
     setSearchQuery("");
-  }
-  const {isAuthenticated} = useSelector(state=>state.user);
+  };
+  const { isAuthenticated } = useSelector((state) => state.user);
+  const {cartItems} = useSelector(state=>state.cart)
   return (
     <div className="navbar">
       <div className="navbar-container">
@@ -53,7 +54,10 @@ const Navbar = () => {
         </div>
         <div className="navbar-icons">
           <div className="search-container">
-            <form className={`search-form ${isSearchOpen ? "active" : ""}`} onSubmit={handleSearchSubmit}>
+            <form
+              className={`search-form ${isSearchOpen ? "active" : ""}`}
+              onSubmit={handleSearchSubmit}
+            >
               <input
                 type="text"
                 className="search-input"
@@ -71,9 +75,10 @@ const Navbar = () => {
             </form>
           </div>
           <div className="cart-container">
-            <Link to="/cart" />
+            <Link to="/cart" >
             <ShoppingCartIcon className="icon" />
-            <span className="cart-badge">6</span>
+            <span className="cart-badge">{cartItems.length}</span>
+            </Link>
           </div>
 
           {!isAuthenticated && (
