@@ -1,5 +1,5 @@
 :root { 
-    
+    --primary-font: 'Inter', sans-serif;
     --primary-main: #6C5B7B; 
     --primary-dark: #4E4A59; 
     --primary-light: #F8B5B1; 
@@ -21,4 +21,5 @@
     margin:0;
     padding: 0;
     box-sizing: border-box;
+    font-family: var(--primary-font);
 }

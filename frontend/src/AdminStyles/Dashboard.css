@@ -152,16 +152,12 @@
     margin-bottom: 15px;
   }
   
-  .social-box.instagram .MuiSvgIcon-root {
-    color: #E1306C;
+  .social-box.github .MuiSvgIcon-root {
+    color: #241f21;
   }
   
   .social-box.linkedin .MuiSvgIcon-root {
     color: #0077B5;
-  }
-  
-  .social-box.youtube .MuiSvgIcon-root {
-    color: #FF0000;
   }
   
   .social-box h3 {

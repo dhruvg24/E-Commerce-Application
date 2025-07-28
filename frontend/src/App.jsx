@@ -21,12 +21,14 @@ import Payment from "./Cart/Payment";
 import PaymentSuccess from "./Cart/PaymentSuccess";
 import MyOrders from "./Order/MyOrders";
 import OrderDetails from "./Order/OrderDetails";
+import Dashboard from "./Admin/Dashboard";
+import ProductsList from "./Admin/ProductsList";
 
 function App() {
   const { isAuthenticated, user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   useEffect(() => {
-    if(isAuthenticated){
+    if (isAuthenticated) {
       dispatch(loadUser());
     }
   }, [dispatch]);
@@ -92,7 +94,17 @@ function App() {
           path="/order/:orderID"
           element={<ProtectedRoute element={<OrderDetails />} />}
         />
-        
+
+        {/* ADMIN ROUTES */}
+        <Route
+          path="/admin/dashboard"
+          element={<ProtectedRoute element={<Dashboard />} adminOnly={true} />}
+        />
+
+        <Route
+          path="/admin/products"
+          element={<ProtectedRoute element={<ProductsList />} adminOnly={true} />}
+        />
       </Routes>
       {isAuthenticated && <UserDashboard user={user} />}
     </Router>
