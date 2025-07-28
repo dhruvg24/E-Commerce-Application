@@ -4,16 +4,21 @@ import PageTitle from '../components/PageTitle'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import CheckoutPath from './CheckoutPath'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
+import {toast} from 'react-toastify'
 const Payment = () => {
+
     const orderItem = JSON.parse(sessionStorage.getItem('orderItem'));
     const {user} = useSelector(state=>state.user)
     const {shippingInfo} = useSelector(state=>state.cart)
+    const navigate = useNavigate();
 
     const completePayment = async(amount)=>{
-      // refer payment controller(backend)
+
+      try{
+        // refer payment controller(backend)
       // both sendAPIKey and processPayment function should be triggered
       const {data:keyData} = await axios.get('/api/getKey');
       const {key} = keyData;
@@ -33,7 +38,22 @@ const Payment = () => {
         name: 'Dhruv Garg',
         description: 'Ecommerce website payment transaction',
         order_id: order.id, // This is the order_id created in the backend
-        callback_url: '/api/paymentVerification', // Your success URL
+        handler: async function (response){
+          // through handler frontend sends verif. req
+
+          const {data} = await axios.post('/api/paymentVerification',{
+            razorpay_payment_id:response.razorpay_payment_id,
+            razorpay_order_id:response.razorpay_order_id,
+            razorpay_signature:response.razorpay_signature
+          })
+
+          // success, reference(payment reference) - from backend(paymentController)
+          if(data.success){
+            navigate(`/paymentSuccess?reference=${data.reference}`)
+          }else{
+            alert('Payment verification failed!!')
+          }
+        }, 
         prefill: {
           name: user.name,
           email: user.email,
@@ -46,6 +66,11 @@ const Payment = () => {
 
       const rzp = new window.Razorpay(options);
       rzp.open();
+      }catch(err){
+        toast.error(err, {position:'top-center', autoClose:3000})
+
+      }
+      
 
 
     }
