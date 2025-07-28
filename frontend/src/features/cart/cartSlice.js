@@ -54,6 +54,12 @@ const cartSlice = createSlice({
     saveShippingInfo: (state,action)=>{
       state.shippingInfo = action.payload
       localStorage.setItem('shippingInfo',JSON.stringify(state.shippingInfo))
+    },
+    clearCart: (state)=>{
+      // this is necessary when payment is completed the cart,shippingInfo should be removed.
+      state.cartItems = [];
+      localStorage.removeItem('cartItems')
+      localStorage.removeItem('shippingInfo')
     }
   },
   extraReducers: (builder) => {
@@ -91,6 +97,6 @@ const cartSlice = createSlice({
   },
 });
 
-export const { removeErrors, removeMessage, removeItemFromCart ,saveShippingInfo } =
+export const { removeErrors, removeMessage, removeItemFromCart ,saveShippingInfo,clearCart } =
   cartSlice.actions;
 export default cartSlice.reducer;
