@@ -13,7 +13,8 @@ const app = express();
 
 // middlewares
 app.use(morgan('dev'));
-app.use(express.json())
+app.use(express.json());
+app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
 app.use(fileUpload());
 
