@@ -40,6 +40,23 @@ export const getProductDetails = createAsyncThunk('product/getProductDetails', a
         return rejectWithValue(error.response?.data || 'Some error occurred');
     }
 })
+
+
+// submit review
+export const createReview = createAsyncThunk('product/createReview', async({rating, comment,productId},{rejectWithValue})=>{
+    try{
+        const config = {
+            headers:{
+                'Content-Type':'application/json'
+            }
+        }
+        
+        const {data} = await axios.put('/api/review',{rating,comment,productId},config); //create,update review
+        return data;
+    }catch(error){
+        return rejectWithValue(error.response?.data || 'Some error occurred');
+    }
+})
 const productSlice = createSlice({
     name:'product',
     initialState: {
@@ -49,13 +66,18 @@ const productSlice = createSlice({
         error:null,
         product:null,
         resultsPerPage:4,
-        totalPages:0
+        totalPages:0,
+        reviewSuccess:false,
+        reviewLoading:false
     },
     reducers:{
         removeErrors:(state)=>{
             state.error = null;
         },
-        // while working with APIs the errors if any should be shown to user and to be removed after some time.
+        removeSuccess:(state)=>{
+            state.reviewSuccess=false;
+        }
+
     },
     // lifecycle actions
     extraReducers:(builder)=>{
@@ -95,11 +117,25 @@ const productSlice = createSlice({
             state.error = action.payload || 'Something went wrong';
         })
 
+
+        builder.addCase(createReview.pending, (state)=>{
+            state.reviewLoading=true;
+            state.error=null
+        })
+        .addCase(createReview.fulfilled,(state,action)=>{
+            state.reviewLoading=false,
+            state.reviewSuccess=true;
+        })
+        .addCase(createReview.rejected, (state,action)=>{
+            state.reviewLoading=false;
+            state.error = action.payload || 'Something went wrong';
+        })
+
     }
 
 })
 
-export const {removeErrors} = productSlice.actions;
+export const {removeErrors,removeSuccess} = productSlice.actions;
 // removeErros -> action creator
 export default productSlice.reducer;
 
