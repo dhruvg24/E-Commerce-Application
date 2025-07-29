@@ -2,14 +2,41 @@ import Product from "../models/productModel.js";
 import HandleError from "../utils/handleError.js";
 import handleAsyncErrors from "../middlewares/handleAsyncErrors.js";
 import APIFunctionality from "../utils/apiFunctionality.js";
+import {v2 as cloudinary} from 'cloudinary'
 // Creating products
 export const createProducts = handleAsyncErrors(async (req, res, next) => {
   // console.log(req.body);
+
+  let image = [];
+
+  if(typeof req.body.image==='string'){
+    // if this is a single image[string]
+    image.push(req.body.image);
+  }else{
+    // if this is an array (multiple images), assign this req.body.image to image array itself.
+    image = req.body.image;
+  }
+
+  const imageLinks = [];
+
+  // admin can insert multiple images.
+
+  for(let i = 0;i<image.length;i++){
+    const res = await cloudinary.uploader.upload(image[i],{folder:'products'})
+
+    imageLinks.push({
+      public_id:res.public_id,
+      url:res.secure_url
+    })
+    // folder in cloudinary
+  }
+  req.body.image = imageLinks;
+
   req.body.user = req.user.id;
   // see product schema -> it has a user object refering to user
   // to get the type of user like admin/user
   const product = await Product.create(req.body);
-  res.status(201).json({ message: "Product created successfully", product });
+  res.status(201).json({ success: "Product created successfully", product });
 });
 
 // get all products

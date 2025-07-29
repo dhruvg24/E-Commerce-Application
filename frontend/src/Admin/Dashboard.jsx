@@ -34,7 +34,7 @@ const Dashboard = () => {
                 <Inventory className="nav-icon" />
                 All Products
               </Link>
-              <Link to="/admin/products/create">
+              <Link to="/admin/product/create">
                 <AddBox className="nav-icon" />
                 Create Product
               </Link>

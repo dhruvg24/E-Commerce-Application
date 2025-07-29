@@ -16,6 +16,32 @@ export const fetchAdminProducts = createAsyncThunk(
     }
   }
 );
+// create products
+export const createProduct = createAsyncThunk(
+  "/admin/createProduct",
+  async (productData, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+      // config - for images
+      const { data } = await axios.post(
+        "/api/admin/product/create",
+        productData,
+        config
+      );
+      // will get success,product from backend
+
+      return data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Error while creating the product"
+      );
+    }
+  }
+);
 const adminSlice = createSlice({
   name: "admin",
   initialState: {
@@ -45,6 +71,24 @@ const adminSlice = createSlice({
         (state.loading = false),
           (state.error =
             action.payload?.message || "Error while fetching products");
+      });
+
+    builder
+      .addCase(createProduct.pending, (state) => {
+        (state.loading = true), (state.error = null);
+      })
+      .addCase(createProduct.fulfilled, (state, action) => {
+        (state.loading = false),
+          state.products.push(action.payload.product),
+          (state.success = action.payload.success);
+          // console.log(state.products);
+          // console.log('Created product:',action.payload.product);
+          // console.log('Total products', [...state.products]);
+      })
+      .addCase(createProduct.rejected, (state, action) => {
+        (state.loading = false),
+          (state.error =
+            action.payload?.message || "Error while creating the product");
       });
   },
 });
