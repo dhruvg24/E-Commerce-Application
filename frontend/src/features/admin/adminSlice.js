@@ -6,7 +6,7 @@ export const fetchAdminProducts = createAsyncThunk(
   "/admin/fetchAdminProducts",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = axios.get("/api/admin/products");
+      const { data } = await axios.get("/api/admin/products");
       //   through backend - we send success,products
       return data;
     } catch (err) {
