@@ -69,6 +69,23 @@ export const updateProduct = createAsyncThunk(
     }
   }
 );
+
+// delete product
+export const deleteProduct = createAsyncThunk(
+  "/admin/deleteProduct",
+  async (productId, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.delete(`/api/admin/product/${productId}`);
+
+      
+      return {productId};
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Error while deleting the product"
+      );
+    }
+  }
+);
 const adminSlice = createSlice({
   name: "admin",
   initialState: {
@@ -77,6 +94,7 @@ const adminSlice = createSlice({
     loading: false,
     error: null,
     product: {},
+    deleting: {}
   },
   reducers: {
     removeErrors: (state) => {
@@ -127,14 +145,29 @@ const adminSlice = createSlice({
         (state.loading = false),
           (state.product = action.payload.product),
           (state.success = action.payload.success);
-        // console.log(state.products);
-        // console.log('Created product:',action.payload.product);
-        // console.log('Total products', [...state.products]);
       })
       .addCase(updateProduct.rejected, (state, action) => {
         (state.loading = false),
           (state.error =
             action.payload?.message || "Error while updating the product");
+      });
+
+      builder
+      .addCase(deleteProduct.pending, (state,action) => {
+        const productId= action.meta.arg;
+
+        (state.deleting[productId] = true);
+      })
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        const productId= action.payload.productId;
+        (state.deleting[productId] = false),
+          (state.products = state.products.filter(product=>product._id!==productId));
+      })
+      .addCase(deleteProduct.rejected, (state, action) => {
+        const productId = action.meta.arg;
+        state.deleting[productId] = false;
+          (state.error =
+            action.payload?.message || "Error while deleting the product");
       });
   },
 });
