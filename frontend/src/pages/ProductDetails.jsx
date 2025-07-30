@@ -20,15 +20,22 @@ import { addItemsToCart, removeMessage } from "../features/cart/cartSlice";
 const ProductDetails = () => {
   const [userRating, setUserRating] = useState(0);
 
-  const [comment,setComment] = useState('');
+  const [comment, setComment] = useState("");
 
   const [quantity, setQuantity] = useState(1);
+
+  const [selectedImage, setSelectedImage] = useState("");
+  // the above is for navigating through multiple images for a product
 
   const handleRatingChange = (newRating) => {
     setUserRating(newRating);
     // console.log(`Rating changed to : ${newRating}`);
   };
-  const { loading, error, product, reviewSuccess, reviewLoading } = useSelector((state) => state.product);
+  const { loading, error, product, reviewSuccess, reviewLoading } = useSelector(
+    (state) => state.product
+  );
+
+  console.log(product)
   const {
     loading: cartLoading,
     error: cartError,
@@ -68,8 +75,6 @@ const ProductDetails = () => {
     }
   }, [dispatch, success, message]);
 
-  
-
   const decreaseQuantity = () => {
     if (quantity <= 1) {
       toast.error("Quantity cannot be less than 1", {
@@ -98,31 +103,43 @@ const ProductDetails = () => {
     dispatch(addItemsToCart({ id, quantity }));
   };
 
-  const handleReviewSubmit = (e) =>{
+  const handleReviewSubmit = (e) => {
     e.preventDefault();
-    if(!userRating){
-      toast.error('Please select a rating', {position:'top-center',autoClose:3000})
+    if (!userRating) {
+      toast.error("Please select a rating", {
+        position: "top-center",
+        autoClose: 3000,
+      });
       return;
     }
-    dispatch(createReview({
-      rating: userRating,
-      comment,
-      productId:id
+    dispatch(
+      createReview({
+        rating: userRating,
+        comment,
+        productId: id,
+      })
+    );
+  };
 
-    }))
-  }
-
-  useEffect(()=>{
-    if(reviewSuccess){
-      toast.success('Review submitted successfully', {position:'top-center',autoClose:3000})
+  useEffect(() => {
+    if (reviewSuccess) {
+      toast.success("Review submitted successfully", {
+        position: "top-center",
+        autoClose: 3000,
+      });
       setUserRating(0);
-      setComment('');
+      setComment("");
       dispatch(removeSuccess());
       dispatch(getProductDetails(id));
     }
-  },[reviewSuccess,id,dispatch])
-
-
+  }, [reviewSuccess, id, dispatch]);
+  // display the 0th index image on page mount
+  useEffect(()=>{
+    if(product && product.image && product.image.length>0){
+      setSelectedImage(product.image[0].url);
+      // 0th index image by default will get displayed
+    }
+  },[product])
   if (loading) {
     return (
       <>
@@ -148,11 +165,18 @@ const ProductDetails = () => {
       <Navbar />
       <div className="product-details-container">
         <div className="product-detail-container">
-          <img
-            src={product.image[0].url.replace("./", "/")}
-            alt={product.name}
-            className="product-detail-image"
-          />
+          <div className="product-image-container">
+            <img
+              src={selectedImage}
+              alt={product.name}
+              className="product-detail-image"
+            />
+            {product.image.length>1 && (<div className="product-thumbnails">
+              {/* all images of the product */}
+              {product.image.map((img,index)=>(<img src={img.url} key={index} alt= {`Thumbnail ${index +1}`} className="thumbnail-image" onClick={()=>setSelectedImage(img.url)}/>))}
+
+            </div>)}
+          </div>
 
           <div className="product-info">
             <h2>{product.name}</h2>
@@ -221,10 +245,12 @@ const ProductDetails = () => {
                 placeholder="Write your Review here..."
                 className="review-input"
                 value={comment}
-                onChange={(e)=>setComment(e.target.value)}
+                onChange={(e) => setComment(e.target.value)}
                 required
               ></textarea>
-              <button className="submit-review-btn" disabled={reviewLoading}>{reviewLoading?'Submitting':'Submit Review'}</button>
+              <button className="submit-review-btn" disabled={reviewLoading}>
+                {reviewLoading ? "Submitting" : "Submit Review"}
+              </button>
             </form>
           </div>
         </div>
