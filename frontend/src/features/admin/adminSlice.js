@@ -42,6 +42,33 @@ export const createProduct = createAsyncThunk(
     }
   }
 );
+
+// update product
+export const updateProduct = createAsyncThunk(
+  "/admin/updateProduct",
+  async ({ id, formData }, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+      // config - for images
+      const { data } = await axios.put(
+        `/api/admin/product/${id}`,
+        formData,
+        config
+      );
+
+      // success,product info. from backend
+      return data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Error while updating the product"
+      );
+    }
+  }
+);
 const adminSlice = createSlice({
   name: "admin",
   initialState: {
@@ -49,6 +76,7 @@ const adminSlice = createSlice({
     success: false,
     loading: false,
     error: null,
+    product: {},
   },
   reducers: {
     removeErrors: (state) => {
@@ -81,14 +109,32 @@ const adminSlice = createSlice({
         (state.loading = false),
           state.products.push(action.payload.product),
           (state.success = action.payload.success);
-          // console.log(state.products);
-          // console.log('Created product:',action.payload.product);
-          // console.log('Total products', [...state.products]);
+        // console.log(state.products);
+        // console.log('Created product:',action.payload.product);
+        // console.log('Total products', [...state.products]);
       })
       .addCase(createProduct.rejected, (state, action) => {
         (state.loading = false),
           (state.error =
             action.payload?.message || "Error while creating the product");
+      });
+
+    builder
+      .addCase(updateProduct.pending, (state) => {
+        (state.loading = true), (state.error = null);
+      })
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        (state.loading = false),
+          (state.product = action.payload.product),
+          (state.success = action.payload.success);
+        // console.log(state.products);
+        // console.log('Created product:',action.payload.product);
+        // console.log('Total products', [...state.products]);
+      })
+      .addCase(updateProduct.rejected, (state, action) => {
+        (state.loading = false),
+          (state.error =
+            action.payload?.message || "Error while updating the product");
       });
   },
 });

@@ -2,17 +2,17 @@ import Product from "../models/productModel.js";
 import HandleError from "../utils/handleError.js";
 import handleAsyncErrors from "../middlewares/handleAsyncErrors.js";
 import APIFunctionality from "../utils/apiFunctionality.js";
-import {v2 as cloudinary} from 'cloudinary'
+import { v2 as cloudinary } from "cloudinary";
 // Creating products
 export const createProducts = handleAsyncErrors(async (req, res, next) => {
   // console.log(req.body);
 
   let image = [];
 
-  if(typeof req.body.image==='string'){
+  if (typeof req.body.image === "string") {
     // if this is a single image[string]
     image.push(req.body.image);
-  }else{
+  } else {
     // if this is an array (multiple images), assign this req.body.image to image array itself.
     image = req.body.image;
   }
@@ -21,13 +21,15 @@ export const createProducts = handleAsyncErrors(async (req, res, next) => {
 
   // admin can insert multiple images.
 
-  for(let i = 0;i<image.length;i++){
-    const res = await cloudinary.uploader.upload(image[i],{folder:'products'})
+  for (let i = 0; i < image.length; i++) {
+    const res = await cloudinary.uploader.upload(image[i], {
+      folder: "products",
+    });
 
     imageLinks.push({
-      public_id:res.public_id,
-      url:res.secure_url
-    })
+      public_id: res.public_id,
+      url: res.secure_url,
+    });
     // folder in cloudinary
   }
   req.body.image = imageLinks;
@@ -89,7 +91,41 @@ export const getAllProducts = handleAsyncErrors(async (req, res, next) => {
 // update product
 export const updateProduct = handleAsyncErrors(async (req, res, next) => {
   // console.log(product);
-  const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+  // need to handle product images as well
+  let product = await Product.findById(req.params.id);
+  if (!product) {
+    return next(new HandleError("Product Not Found", 404));
+  }
+  let images = [];
+  if (typeof req.body.image === "String") {
+    // single image is updated/created
+    images.push(req.body.image);
+  } else if (Array.isArray(req.body.image)) {
+    // user entering multiple images
+    images = req.body.image;
+  }
+
+  if (images.length > 0) {
+    // if user has sent some images to upload in req.body
+    // all the older images to be deleted from cloudinary
+    for (let i = 0; i < product.image.length; i++) {
+      await cloudinary.uploader.destroy(product.image[i].public_id);
+    }
+
+    // upload newer images to cloudinary
+    const imageLinks = [];
+    for (let i = 0; i < images.length; i++) {
+      const result = await cloudinary.uploader.upload(images[i], {
+        folder: "products",
+      });
+      imageLinks.push({
+        public_id: result.public_id,
+        url: result.secure_url,
+      });
+    }
+    req.body.image = imageLinks;
+  }
+  product = await Product.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
@@ -224,9 +260,9 @@ export const deleteReview = handleAsyncErrors(async (req, res, next) => {
   );
 
   res.status(200).json({
-    success:true,
-    message:'Review deleted successfully'
-  })
+    success: true,
+    message: "Review deleted successfully",
+  });
 });
 // ADMIN-Get all products on the website.
 export const getAdminProducts = handleAsyncErrors(async (req, res, next) => {
