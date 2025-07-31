@@ -77,11 +77,76 @@ export const deleteProduct = createAsyncThunk(
     try {
       const { data } = await axios.delete(`/api/admin/product/${productId}`);
 
-      
-      return {productId};
+      return { productId };
     } catch (err) {
       return rejectWithValue(
         err.response?.data || "Error while deleting the product"
+      );
+    }
+  }
+);
+
+// fetch all users 
+export const fetchUsers = createAsyncThunk(
+  "/admin/fetchUsers",
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.get(`/api/admin/users`);
+
+      return  data ;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Error while fetching users"
+      );
+    }
+  }
+);
+
+
+// get single user
+export const getSingleUser = createAsyncThunk(
+  "/admin/getSingleUser",
+  async (id, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.get(`/api/admin/user/${id}`);
+
+      return  data ;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Error while fetching the user"
+      );
+    }
+  }
+);
+
+
+// update user role
+export const updateUserRole = createAsyncThunk(
+  "/admin/updateUserRole",
+  async ({userId,role}, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.put(`/api/admin/user/${userId}`,{role});
+
+      return  data ;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Error while updating user role"
+      );
+    }
+  }
+);
+
+// delete user profile
+export const deleteUser = createAsyncThunk(
+  "/admin/deleteUser",
+  async (userId, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.delete(`/api/admin/user/${userId}`);
+
+      return  data ;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Error while deleting the user"
       );
     }
   }
@@ -94,7 +159,10 @@ const adminSlice = createSlice({
     loading: false,
     error: null,
     product: {},
-    deleting: {}
+    deleting: {},
+    users:[],
+    user:{},
+    message:null
   },
   reducers: {
     removeErrors: (state) => {
@@ -103,6 +171,9 @@ const adminSlice = createSlice({
     removeSuccess: (state) => {
       state.success = false;
     },
+    clearMessage: (state)=>{
+      state.message = null
+    }
   },
 
   extraReducers: (builder) => {
@@ -152,26 +223,86 @@ const adminSlice = createSlice({
             action.payload?.message || "Error while updating the product");
       });
 
-      builder
-      .addCase(deleteProduct.pending, (state,action) => {
-        const productId= action.meta.arg;
+    builder
+      .addCase(deleteProduct.pending, (state, action) => {
+        const productId = action.meta.arg;
 
-        (state.deleting[productId] = true);
+        state.deleting[productId] = true;
       })
       .addCase(deleteProduct.fulfilled, (state, action) => {
-        const productId= action.payload.productId;
+        const productId = action.payload.productId;
         (state.deleting[productId] = false),
-          (state.products = state.products.filter(product=>product._id!==productId));
+          (state.products = state.products.filter(
+            (product) => product._id !== productId
+          ));
       })
       .addCase(deleteProduct.rejected, (state, action) => {
         const productId = action.meta.arg;
         state.deleting[productId] = false;
+        state.error =
+          action.payload?.message || "Error while deleting the product";
+      });
+
+
+       builder
+      .addCase(fetchUsers.pending, (state) => {
+        (state.loading = true), (state.error = null);
+      })
+      .addCase(fetchUsers.fulfilled, (state, action) => {
+        (state.loading = false),
+          (state.users = action.payload.users);
+      })
+      .addCase(fetchUsers.rejected, (state, action) => {
+        (state.loading = false),
           (state.error =
-            action.payload?.message || "Error while deleting the product");
+            action.payload?.message || "Error while fetching the users");
+      });
+
+      builder
+      .addCase(getSingleUser.pending, (state) => {
+        (state.loading = true), (state.error = null);
+      })
+      .addCase(getSingleUser.fulfilled, (state, action) => {
+        (state.loading = false),
+          (state.user = action.payload.user);
+      })
+      .addCase(getSingleUser.rejected, (state, action) => {
+        (state.loading = false),
+          (state.error =
+            action.payload?.message || "Error while fetching the user");
+      });
+
+
+      builder
+      .addCase(updateUserRole.pending, (state) => {
+        (state.loading = true), (state.error = null);
+      })
+      .addCase(updateUserRole.fulfilled, (state, action) => {
+        (state.loading = false),
+          (state.success = action.payload.success);
+      })
+      .addCase(updateUserRole.rejected, (state, action) => {
+        (state.loading = false),
+          (state.error =
+            action.payload?.message || "Error while updating user role");
+      });
+
+      builder
+      .addCase(deleteUser.pending, (state) => {
+        (state.loading = true), (state.error = null);
+      })
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        (state.loading = false),
+          (state.message = action.payload.message);
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
+        (state.loading = false),
+          (state.error =
+            action.payload?.message || "Error while deleting the user");
       });
   },
 });
 
-export const { removeErrors, removeSuccess } = adminSlice.actions;
+export const { removeErrors, removeSuccess , clearMessage } = adminSlice.actions;
 
 export default adminSlice.reducer;
