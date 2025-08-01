@@ -1,15 +1,17 @@
 import app from "./app.js";
 import dotenv from "dotenv";
 import { connectToMongoDB } from "./config/db.js";
-import {v2 as cloudinary} from 'cloudinary'
+import { v2 as cloudinary } from "cloudinary";
 import Razorpay from "razorpay";
-dotenv.config({ path: "backend/config/config.env" });
+if (process.env.NODE_ENV !== "PRODUCTION") {
+  dotenv.config({ path: "backend/config/config.env" });
+}
 connectToMongoDB();
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_NAME, 
+  cloud_name: process.env.CLOUDINARY_NAME,
   api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET
-})
+  api_secret: process.env.API_SECRET,
+});
 // handle uncaught exception errors
 process.on("uncaughtException", (err) => {
   console.log(`Error: ${err.message}`);
@@ -26,7 +28,6 @@ const PORT = process.env.PORT || 3000;
 export const instance = new Razorpay({
   key_id: process.env.RAZORPAY_API_KEY,
   key_secret: process.env.RAZORPAY_API_SECRET,
-  
 });
 
 const server = app.listen(process.env.PORT, () => {
