@@ -33,7 +33,7 @@ const Navbar = () => {
       <div className="navbar-container">
         <div className="navbar-logo">
           <Link to="/" onClick={() => setIsMenuOpen(false)}>
-            ShopEasy
+            ClickKart
           </Link>
         </div>
         <div className={`navbar-links ${isMenuOpen ? "active" : ""}`}>
