@@ -207,6 +207,46 @@ export const updateOrderStatus = createAsyncThunk(
   }
 );
 
+
+// Fetch All Reviews
+export const fetchProductReviews = createAsyncThunk(
+  "/admin/fetchProductReviews",
+  async (productId, { rejectWithValue }) => {
+    try {
+      
+      const { data } = await axios.get(
+        `/api/admin/reviews?id=${productId}`
+      );
+      // status can have multiple value
+      return data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Error while fetching order reviews."
+      );
+    }
+  }
+);
+
+
+// Delete Review
+export const deleteReview = createAsyncThunk(
+  "/admin/deleteReview",
+  async ({productId,reviewId}, { rejectWithValue }) => {
+    try {
+      
+      const { data } = await axios.delete(
+        `/api/admin/reviews?productId=${productId}&id=${reviewId}`
+      );
+      // in backend we are getting productid , id through backend
+      
+      return data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Error while deleting product review."
+      );
+    }
+  }
+);
 const adminSlice = createSlice({
   name: "admin",
   initialState: {
@@ -222,6 +262,7 @@ const adminSlice = createSlice({
     orders: [],
     totalAmount: 0,
     order: {},
+    reviews:[]
   },
   reducers: {
     removeErrors: (state) => {
@@ -397,6 +438,35 @@ const adminSlice = createSlice({
         (state.loading = false),
           (state.error =
             action.payload?.message || "Error while updating order status.");
+      });
+
+      builder
+      .addCase(fetchProductReviews.pending, (state) => {
+        (state.loading = true), (state.error = null);
+      })
+      .addCase(fetchProductReviews.fulfilled, (state, action) => {
+        (state.loading = false),
+          (state.reviews = action.payload.reviews);
+      })
+      .addCase(fetchProductReviews.rejected, (state, action) => {
+        (state.loading = false),
+          (state.error =
+            action.payload?.message || "Error while fetching order reviews.");
+      });
+
+       builder
+      .addCase(deleteReview.pending, (state) => {
+        (state.loading = true), (state.error = null);
+      })
+      .addCase(deleteReview.fulfilled, (state, action) => {
+        (state.loading = false),
+          (state.success = action.payload.success),
+          (state.message = action.payload.message);
+      })
+      .addCase(deleteReview.rejected, (state, action) => {
+        (state.loading = false),
+          (state.error =
+            action.payload?.message || "Error while deleting product review.");
       });
   },
 });
