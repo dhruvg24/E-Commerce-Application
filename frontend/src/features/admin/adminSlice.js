@@ -151,6 +151,39 @@ export const deleteUser = createAsyncThunk(
     }
   }
 );
+
+// fetch all orders
+export const fetchAllOrders = createAsyncThunk(
+  "/admin/fetchAllOrders",
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.get(`/api/admin/orders`);
+
+      return  data ;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Error while fetching the orders"
+      );
+    }
+  }
+);
+
+
+// Delete order
+export const deleteOrder = createAsyncThunk(
+  "/admin/deleteOrder",
+  async (id, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.delete(`/api/admin/order/${id}`);
+
+      return  data ;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || "Error while deleting the order"
+      );
+    }
+  }
+);
 const adminSlice = createSlice({
   name: "admin",
   initialState: {
@@ -162,7 +195,9 @@ const adminSlice = createSlice({
     deleting: {},
     users:[],
     user:{},
-    message:null
+    message:null,
+    orders:[],
+    totalAmount:0,
   },
   reducers: {
     removeErrors: (state) => {
@@ -299,6 +334,37 @@ const adminSlice = createSlice({
         (state.loading = false),
           (state.error =
             action.payload?.message || "Error while deleting the user");
+      });
+
+      builder
+      .addCase(fetchAllOrders.pending, (state) => {
+        (state.loading = true), (state.error = null);
+      })
+      .addCase(fetchAllOrders.fulfilled, (state, action) => {
+        (state.loading = false),
+          (state.orders = action.payload.orders),(state.totalAmount = action.payload.totalAmount)
+          ;
+      })
+      .addCase(fetchAllOrders.rejected, (state, action) => {
+        (state.loading = false),
+          (state.error =
+            action.payload?.message || "Error while fetching the orders");
+      });
+
+
+      builder
+      .addCase(deleteOrder.pending, (state) => {
+        (state.loading = true), (state.error = null);
+      })
+      .addCase(deleteOrder.fulfilled, (state, action) => {
+        (state.loading = false),
+          (state.product = action.payload.product),
+          (state.message = action.payload.message);
+      })
+      .addCase(deleteOrder.rejected, (state, action) => {
+        (state.loading = false),
+          (state.error =
+            action.payload?.message || "Error while deleting the order.");
       });
   },
 });
