@@ -57,7 +57,7 @@ const PaymentSuccess = () => {
           totalPrice: orderItem.total,
         };
 
-        console.log("Sending data", orderData);
+        // console.log("Sending data", orderData);
 
         dispatch(createOrder(orderData));
         // orderData is the payload
@@ -66,7 +66,7 @@ const PaymentSuccess = () => {
 
         sessionStorage.removeItem("orderItem");
       } catch (err) {
-        console.log("Order creation error", err.message);
+        // console.log("Order creation error", err.message);
         toast.error(err.message || "Order creation error", {
           position: "top-center",
           autoClose: 3000,

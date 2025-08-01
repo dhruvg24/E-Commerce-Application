@@ -35,7 +35,7 @@ const ProductDetails = () => {
     (state) => state.product
   );
 
-  console.log(product)
+  // console.log(product)
   const {
     loading: cartLoading,
     error: cartError,

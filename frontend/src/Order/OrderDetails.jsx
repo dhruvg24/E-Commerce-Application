@@ -13,7 +13,7 @@ const OrderDetails = () => {
   const { orderID } = useParams();
   const { order, loading, error } = useSelector((state) => state.order);
 
-  console.log(order);
+  // console.log(order);
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getOrderDetails(orderID));

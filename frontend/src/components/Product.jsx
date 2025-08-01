@@ -6,7 +6,7 @@ const Product = ({product}) => {
     const [rating, setRating] = useState(0);
     const handleRatingChange = (newRating)=>{
       setRating(newRating);
-      console.log(`Rating is updated to : ${newRating}`)
+      // console.log(`Rating is updated to : ${newRating}`)
     }
   return (
     <Link to={`/product/${product._id}`} className="product_id">

@@ -13,7 +13,7 @@ import LoadingContent from "../components/LoadingContent";
 const MyOrders = () => {
   const { user } = useSelector((state) => state.user);
   const { orders, loading, error } = useSelector((state) => state.order);
-  console.log(orders);
+  // console.log(orders);
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getAllMyOrders());

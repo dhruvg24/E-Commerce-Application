@@ -19,7 +19,7 @@ export const getProduct = createAsyncThunk('product/getProduct', async({keyword,
         // const link = '/api/products';
         // get request
         const {data} = await axios.get(link);
-        console.log('Response:',data);
+        // console.log('Response:',data);
 
         return data;
 
@@ -87,7 +87,7 @@ const productSlice = createSlice({
             // load spinners in UI
         })
         .addCase(getProduct.fulfilled,(state,action)=>{
-            console.log('Fulfilled action payload', action.payload)
+            // console.log('Fulfilled action payload', action.payload)
             state.loading = false;
             state.error =null;
             state.products = action.payload.products; //from backend
@@ -107,7 +107,7 @@ const productSlice = createSlice({
             state.error=null
         })
         .addCase(getProductDetails.fulfilled,(state,action)=>{
-            console.log('Product details', action.payload)
+            // console.log('Product details', action.payload)
             state.loading = false;
             state.error =null;
             state.product = action.payload.product; //from backend

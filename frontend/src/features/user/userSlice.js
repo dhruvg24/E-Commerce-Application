@@ -12,7 +12,7 @@ export const register = createAsyncThunk(
         },
       };
       const { data } = await axios.post("/api/register", userData, config);
-      console.log("register data: ", data);
+      // console.log("register data: ", data);
       return data;
     } catch (err) {
       return rejectWithValue(
@@ -36,7 +36,7 @@ export const login = createAsyncThunk(
         { email, password },
         config
       );
-      console.log("login data: ", data);
+      // console.log("login data: ", data);
       return data;
     } catch (err) {
       return rejectWithValue(

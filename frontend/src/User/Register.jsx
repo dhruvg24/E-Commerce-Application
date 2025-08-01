@@ -53,9 +53,9 @@ const Register = () => {
     form.set('password', password);
     form.set('avatar', avatar);
 
-    for(let pair of form.entries()){
-        console.log(pair[0] + '-'  + pair[1]);
-    }
+    // for(let pair of form.entries()){
+    //     console.log(pair[0] + '-'  + pair[1]);
+    // }
 
     dispatch(register(form));
 

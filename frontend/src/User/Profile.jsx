@@ -6,7 +6,7 @@ import PageTitle from '../components/PageTitle'
 import LoadingContent from '../components/LoadingContent'
 const Profile = () => {
     const {loading, isAuthenticated, user} = useSelector(state=>state.user);
-    console.log(user);
+    // console.log(user);
     const navigate = useNavigate();
     useEffect(()=>{
         if(isAuthenticated===false){
